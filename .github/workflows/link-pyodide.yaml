@@ -1,11 +1,10 @@
-name: Link & Release Pyodide for workerd (0.26.0a2) # To change the version, update pyodide/Makefile
+name: Link & Release Pyodide for workerd (0.26.0a3) # To change the version, update pyodide/Makefile
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: Version Tag
         required: true
-        default: "0.26.a3"
       python_version:
         description: Python Version
         required: true
