@@ -1,0 +1,25 @@
+From 8e060129a7d7ee235c5143b6cd3de8ac57ddd3de Mon Sep 17 00:00:00 2001
+From: Hood Chatham <roberthoodchatham@gmail.com>
+Date: Tue, 27 Feb 2024 08:37:22 -0800
+Subject: [PATCH] Replace WebAssembly.instantiate
+
+---
+ src/library_dylink.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/library_dylink.js b/src/library_dylink.js
+index 7c449378d..0969e3a37 100644
+--- a/src/library_dylink.js
++++ b/src/library_dylink.js
+@@ -860,7 +860,7 @@ var LibraryDylink = {
+           var instance = new WebAssembly.Instance(binary, info);
+           return Promise.resolve(postInstantiation(binary, instance));
+         }
+-        return WebAssembly.instantiate(binary, info).then(
++        return wasmInstantiate(binary, info).then(
+           (result) => postInstantiation(result.module, result.instance)
+         );
+       }
+-- 
+2.34.1
+

@@ -1,0 +1,19 @@
+export PLATFORM_TRIPLET=wasm32-emscripten
+export SYSCONFIG_NAME=_sysconfigdata_$(CPYTHON_ABI_FLAGS)_emscripten_$(PLATFORM_TRIPLET)
+
+# BASH_ENV tells bash to run pyodide_env.sh on startup, which sets various
+# environment variables. The next line instructs make to use bash to run each
+# command.
+export BASH_ENV := pyodide_env.sh
+SHELL := /usr/bin/env bash
+
+version_tmp_1 := $(subst ., ,$(PYVERSION:v%=%))
+# Handle alpha, beta, and release candidate versions
+version_tmp_2 := $(subst a, ,$(version_tmp_1))
+version_tmp_3 := $(subst b, ,$(version_tmp_2))
+version_tuple := $(subst r, ,$(version_tmp_3))
+
+export PYMAJOR=$(word 1,$(version_tuple))
+export PYMINOR=$(word 2,$(version_tuple))
+export PYMICRO=$(word 3,$(version_tuple))
+export PYSTABLEVERSION=$(PYMAJOR).$(PYMINOR).$(PYMICRO)

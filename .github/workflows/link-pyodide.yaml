@@ -1,0 +1,48 @@
+name: Link & Release Pyodide for workerd (0.26.0a2) # To change the version, update pyodide/Makefile
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version Tag
+        required: true
+        default: "0.26.a3"
+      python_version:
+        description: Python Version
+        required: true
+        default: "3.12.1"
+      emscripten_version:
+        description: Emscripten Version
+        required: true
+        default: "3.1.52"
+
+jobs:
+  pyodide-link:
+    name: Link & Release Pyodide for workerd
+    runs-on: ubuntu-latest
+    environment: r2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Link & Release Pyodide
+        env: 
+          PYVERSION: ${{ inputs.python_version }}
+          PYODIDE_EMSCRIPTEN_VERSION: ${{ inputs.emscripten_version }}
+        run: |
+          cd pyodide
+          make -C emsdk
+          source emsdk/emsdk/emsdk_env.sh
+          make
+          mv dist pyodide
+          tar cjf pyodide-asm.tar.bz2 pyodide/
+      
+      - name: Create GitHub Release for Linked Pyodide
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "pyodide/pyodide-asm.tar.bz2"
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          name: Pyodide ${{ inputs.tag }}
+          tag: ${{ inputs.tag }}
+          body: "TODO write something here"
+          draft: false
+          prerelease: false

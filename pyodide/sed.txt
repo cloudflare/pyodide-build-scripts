@@ -1,0 +1,3 @@
+s/new WebAssembly.Module/newWasmModule/
+s/WebAssembly.instantiate/wasmInstantiate/
+s/Date.now/monotonicDateNow/

@@ -1,0 +1,59 @@
+name: Build & Publish Pyodide Package Bundle
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Version Tag (Usually YYYYMMDD)
+        required: true
+        default: ""
+      emsdk_version:
+        description: Version of emsdk to use
+        required: true
+        default: "3.1.52"
+      pyodide_version:
+        description: Version of pyodide to use
+        required: true
+        default: "0.26.0a3"
+
+jobs:
+  pyodide-packages:
+    name: Build & Publish Pyodide Package Bundle
+    runs-on: ubuntu-latest
+    environment: r2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        env:
+          EMSDK_VERSION: ${{ inputs.emsdk_version }}
+          PYODIDE_VERSION: ${{ inputs.pyodide_version }}
+        run: |
+          cd packages
+          bash ./setup.sh
+
+      - name: Build and Upload Pyodide Package Bundle
+        env: 
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          cd packages
+          source .venv/bin/activate
+          source emsdk/emsdk_env.sh
+          python3 script.py ${{ inputs.tag }}
+      
+      - name: Create GitHub Release for pyodide_bucket.bzl
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "packages/pyodide_bucket.bzl"
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          tag: ${{ inputs.tag }}
+          body: "Generated Bazel config file for release ${{ inputs.tag }}. Replace this file in workerd/build to update the Pyodide package bundle."
+          draft: false
+          prerelease: false
