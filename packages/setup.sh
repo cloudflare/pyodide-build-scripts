@@ -8,6 +8,7 @@ source ./emsdk_env.sh
 cd ..
 
 git clone https://github.com/cloudflare/pyodide.git
+(cd pyodide && git checkout $PYODIDE_TAG)
 ln -s pyodide/packages packages
 
 # rust is required for building some wheels

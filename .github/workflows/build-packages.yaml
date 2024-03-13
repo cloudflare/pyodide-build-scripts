@@ -10,8 +10,12 @@ on:
         description: Version of emsdk to use
         required: true
         default: "3.1.52"
+      pyodide_tag:
+        description: Branch or tag of cloudflare/pyodide to get recipes from
+        required: true
+        default: "main"
       pyodide_version:
-        description: Version of pyodide to use
+        description: Version of pyodide-build to use
         required: true
         default: "0.26.0a3"
 
@@ -33,6 +37,7 @@ jobs:
         env:
           EMSDK_VERSION: ${{ inputs.emsdk_version }}
           PYODIDE_VERSION: ${{ inputs.pyodide_version }}
+          PYODIDE_TAG: ${{ inputs.pyodide_tag }}
         run: |
           cd packages
           bash ./setup.sh
