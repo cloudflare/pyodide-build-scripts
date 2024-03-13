@@ -34,6 +34,7 @@ jobs:
           make
           mv dist pyodide
           tar cjf pyodide-asm.tar.bz2 pyodide/
+          echo "SHA-256 checksum: $(sha256sum pyodide-asm.tar.bz2)" > release_body.txt
       
       - name: Create GitHub Release for Linked Pyodide
         uses: ncipollo/release-action@v1
@@ -42,6 +43,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Pyodide ${{ inputs.tag }}
           tag: ${{ inputs.tag }}
-          body: "TODO write something here"
+          bodyFile: "pyodide/release_body.txt"
           draft: false
           prerelease: false
