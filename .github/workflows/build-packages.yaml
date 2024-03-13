@@ -52,7 +52,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "packages/pyodide_bucket.bzl"
-          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ inputs.tag }}
           body: "Generated Bazel config file for release ${{ inputs.tag }}. Replace this file in workerd/build to update the Pyodide package bundle."
           draft: false
