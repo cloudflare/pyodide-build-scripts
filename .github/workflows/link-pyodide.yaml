@@ -1,18 +1,14 @@
-name: Link & Release Pyodide for workerd (0.26.0a3) # To change the version, update pyodide/Makefile
+name: Link & Release Pyodide for workerd
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: Version Tag
         required: true
-      python_version:
-        description: Python Version
+      pyodide_version:
+        description: Version of pyodide
         required: true
-        default: "3.12.1"
-      emscripten_version:
-        description: Emscripten Version
-        required: true
-        default: "3.1.52"
+        default: "0.26.0a4"
 
 jobs:
   pyodide-link:
@@ -22,19 +18,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      
+      - name: Get Python and Emscripten versions
+        run:
+          pip3 install pyodide-build==${{ inputs.pyodide_version }}
+          pyodide config get python_version > python_version.txt
+          pyodide config get emscripten_version > emscripten_version.txt
+          pyodide config list
 
       - name: Link & Release Pyodide
         env: 
-          PYVERSION: ${{ inputs.python_version }}
-          PYODIDE_EMSCRIPTEN_VERSION: ${{ inputs.emscripten_version }}
+          PYODIDE_VERSION: ${{ inputs.pyodide_version }}
         run: |
+          export PYVERSION = $(cat python_version.txt)
+          export PYODIDE_EMSCRIPTEN_VERSION = $(cat emscripten_version.txt)
           cd pyodide
           make -C emsdk
           source emsdk/emsdk/emsdk_env.sh
           make
           mv dist pyodide
           tar cjf pyodide-asm.tar.bz2 pyodide/
-          echo "SHA-256 checksum: $(sha256sum pyodide-asm.tar.bz2)" > release_body.txt
+          echo "SHA-256 checksum: $(sha256sum pyodide-asm.tar.bz2 | cut -d ' ' -f 1)" > release_body.txt
       
       - name: Create GitHub Release for Linked Pyodide
         uses: ncipollo/release-action@v1

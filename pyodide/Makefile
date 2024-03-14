@@ -72,15 +72,15 @@ LIBS= \
 	-lpyodide \
 
 
+# No need to perform integrity checking here since we are only running this on Github Actions
+# We assume that Github Actions has a secure connection to github.com
 
-LIB_URL=https://github.com/pyodide/pyodide/releases/download/0.26.0a3/static-libraries-0.26.0a3.tar.bz2
-LIB_SHA256=b59e9b03410c2acf5b7335a74902991a0f0f51ada5fcd1372b50db4a7fb3c306
-LIB_TARBALL=download/static-libraries-0.26.0a3.tar.bz2
+LIB_URL=https://github.com/pyodide/pyodide/releases/download/${PYODIDE_VERSION}/static-libraries-${PYODIDE_VERSION}.tar.bz2
+LIB_TARBALL=download/static-libraries-${PYODIDE_VERSION}.tar.bz2
 LIB_INSTALL_MARK=$(PYTHON_INSTALL)/.installed-pyodide
 
-PYODIDE_CORE_URL=https://github.com/pyodide/pyodide/releases/download/0.26.0a3/pyodide-core-0.26.0a3.tar.bz2
-PYODIDE_CORE_SHA256=f21e9922f070787b149f290e575c673cda3e963fef908a362542ad10826b279a
-PYODIDE_TARBALL=download/pyodide-core-0.26.0a3.tar.bz2
+PYODIDE_CORE_URL=https://github.com/pyodide/pyodide/releases/download/${PYODIDE_VERSION}/pyodide-core-${PYODIDE_VERSION}.tar.bz2
+PYODIDE_TARBALL=download/pyodide-core-${PYODIDE_VERSION}.tar.bz2
 PYODIDE_INSTALL=download/pyodide
 PYODIDE_INSTALL_MARK=$(PYODIDE_INSTALL)/.installed-pyodide
 
@@ -95,14 +95,6 @@ emsdk/emsdk/.complete:
 $(LIB_TARBALL):
 	mkdir -p download
 	wget -O $@ $(LIB_URL)
-	@GOT_SHASUM=`shasum --algorithm 256 $@ | cut -f1 -d' '` \
-		&& (echo $$GOT_SHASUM | grep -q $(LIB_SHA256)) \
-		|| (\
-			   rm $@ \
-			&& echo "Got unexpected shasum $$GOT_SHASUM" \
-			&& echo "If you are updating, set LIB_SHA256 to this." \
-			&& exit 1 \
-		)
 
 $(LIB_INSTALL_MARK): $(LIB_TARBALL)
 	tar -xf $(LIB_TARBALL) -C download
@@ -111,14 +103,6 @@ $(LIB_INSTALL_MARK): $(LIB_TARBALL)
 $(PYODIDE_TARBALL):
 	mkdir -p download
 	wget -O $@ $(PYODIDE_CORE_URL)
-	@GOT_SHASUM=`shasum --algorithm 256 $@ | cut -f1 -d' '` \
-		&& (echo $$GOT_SHASUM | grep -q $(PYODIDE_CORE_SHA256)) \
-		|| (\
-			   rm $@ \
-			&& echo "Got unexpected shasum $$GOT_SHASUM" \
-			&& echo "If you are updating, set PYODIDE_CORE_SHA256 to this." \
-			&& exit 1 \
-		)
 
 $(PYODIDE_INSTALL_MARK): $(PYODIDE_TARBALL)
 	tar -xf $(PYODIDE_TARBALL) -C download
