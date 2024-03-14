@@ -1,4 +1,4 @@
-s/new WebAssembly.Module/newWasmModule/
-s/WebAssembly.instantiate/wasmInstantiate/
-s/Date.now/monotonicDateNow/
-s/crypto.getRandomValues/getRandomValues/
+s/new WebAssembly.Module/newWasmModule/g
+s/WebAssembly.instantiate/wasmInstantiate/g
+s/Date.now/monotonicDateNow/g
+s/crypto.getRandomValues/getRandomValues/g
