@@ -35,8 +35,8 @@ jobs:
         env: 
           PYODIDE_VERSION: ${{ inputs.pyodide_version }}
         run: |
-          export PYVERSION = $(cat python_version.txt)
-          export PYODIDE_EMSCRIPTEN_VERSION = $(cat emscripten_version.txt)
+          export PYVERSION=$(cat python_version.txt)
+          export PYODIDE_EMSCRIPTEN_VERSION=$(cat emscripten_version.txt)
           cd pyodide
           make -C emsdk
           source emsdk/emsdk/emsdk_env.sh
