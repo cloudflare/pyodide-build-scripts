@@ -25,7 +25,7 @@ jobs:
           python-version: 3.12
       
       - name: Get Python and Emscripten versions
-        run:
+        run: |
           pip3 install pyodide-build==${{ inputs.pyodide_version }}
           pyodide config get python_version > python_version.txt
           pyodide config get emscripten_version > emscripten_version.txt
