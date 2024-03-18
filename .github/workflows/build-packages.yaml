@@ -56,7 +56,7 @@ jobs:
       - name: Create GitHub Release for pyodide_bucket.bzl
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "packages/pyodide_bucket.bzl"
+          artifacts: "packages/pyodide_bucket.bzl, packages/dist/pyodide-lock.json, packages/dist/pyodide_packages.tar.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ inputs.tag }}
           body: "Generated Bazel config file for release ${{ inputs.tag }}. Replace this file in workerd/build to update the Pyodide package bundle."
