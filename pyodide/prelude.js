@@ -7,3 +7,4 @@ import {
 const document = undefined;
 const location = undefined;
 function addEventListener() {}
+function reportUndefinedSymbolsNoOp() {}

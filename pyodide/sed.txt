@@ -2,3 +2,4 @@ s/new WebAssembly.Module/newWasmModule/g
 s/WebAssembly.instantiate/wasmInstantiate/g
 s/Date.now/monotonicDateNow/g
 s/crypto.getRandomValues/getRandomValues/g
+s/reportUndefinedSymbols()/reportUndefinedSymbolsNoOp()/g
