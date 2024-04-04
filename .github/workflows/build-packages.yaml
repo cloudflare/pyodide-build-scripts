@@ -17,7 +17,7 @@ on:
       pyodide_version:
         description: Version of pyodide-build to use
         required: true
-        default: "0.26.0a4"
+        default: "0.26.0a3"
 
 jobs:
   pyodide-packages:
