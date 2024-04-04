@@ -21,6 +21,7 @@ def gen_bzl_config(tag, dist):
     bucket_url = "https://pub-45d734c4145d4285b343833ee450ef38.r2.dev/" + tag + "/"
     github_url = "https://github.com/cloudflare/pyodide-build-scripts/releases/download/" + tag + "/"
     lock_bytes = (dist / "pyodide-lock.json").read_bytes()
+    lock_contents = (dist / "pyodide-lock.json").read_text()
     lock_hash = hashlib.sha256(lock_bytes).hexdigest()
     zip_bytes = (dist / "pyodide_packages.tar.zip").read_bytes()
     zip_hash = hashlib.sha256(zip_bytes).hexdigest()
@@ -32,6 +33,7 @@ def gen_bzl_config(tag, dist):
         f.write("PYODIDE_PACKAGE_BUCKET_URL = \"" + bucket_url + "\"\n")
         f.write("PYODIDE_GITHUB_RELEASE_URL = \"" + github_url + "\"\n")
         f.write("PYODIDE_LOCK_SHA256 = \"" + lock_hash + "\"\n")
+        f.write("PYODIDE_LOCK_CONTENTS = \"\"\"" + lock_contents + "\"\"\"\n")
         f.write("PYODIDE_PACKAGES_TAR_ZIP_SHA256 = \"" + zip_hash + "\"\n")
 
 # creates a package bundle .tar.zip file to be bundled in with edgeworker
