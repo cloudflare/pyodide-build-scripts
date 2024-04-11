@@ -50,11 +50,12 @@ def make_bundle(tag, dist = Path("dist")):
             json.dump(lock, file)
         for package in lock["packages"].values():
             name = normalize(package["name"])
+            print("untarring " + name)
+            os.mkdir(tempdir / name)
             if name.endswith("-tests") or name == "test": 
-                os.mkdir(tempdir / name)
                 continue
             file = dist / package["file_name"]
-            with zipfile.ZipFile(file, "r") as zip:
+            with tarfile.open(file, "r:gz") as zip:
                 zip.extractall(tempdir / name)
         # create temp tarfile from tempdir
         with tarfile.open(tempdir / "pyodide_packages.tar", "w") as tar:
@@ -87,17 +88,49 @@ def upload_to_r2(tag, dist = Path("dist")):
             print(f"uploading {path} to {key}")
             s3.upload_file(str(path), "python-package-bucket", key)
 
+# converts all the .zip wheels into .tar.gz format (destructively)
+def convert_wheels_to_tar_gz(dist = Path("dist")):
+    with open(dist / "pyodide-lock.json", "r") as file:
+        lock = json.load(file)
+    
+    for package in lock["packages"].values():
+        name = normalize(package["name"])
+        file = dist / package["file_name"]
+        # check file ends with .zip or .whl
+        if not (file.name.endswith(".zip") or file.name.endswith(".whl")):
+            continue
+        new_file = file.with_suffix(".tar.gz")
+        print("Converting zip file " + str(file) + " to .tar.gz format")
+        with zipfile.ZipFile(file, "r") as zip:
+            with tarfile.open(new_file, "w:gz") as tar:
+                for member in zip.infolist():
+                    if member.is_dir(): continue
+                    tarinfo = tarfile.TarInfo(member.filename)
+                    tarinfo.size = member.file_size
+                    tar.addfile(tarinfo, zip.open(member, "r"))
+        os.remove(file)
+        package["file_name"] = new_file.name
+        # update sha256 hash
+        new_file_bytes = new_file.read_bytes()
+        new_file_hash = hashlib.sha256(new_file_bytes).hexdigest()
+        package["sha256"] = new_file_hash
+    
+    with open(dist / "pyodide-lock.json", "w") as file:
+        json.dump(lock, file)
+
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python script.py <tag>")
+        sys.exit(1)
+    tag = sys.argv[1]
+
     with open("required_packages.txt", "r") as file:
         required_packages = file.read().split("\n")
     status = os.system(f"pyodide build-recipes --install {' '.join(required_packages)}")
     if status != 0:
         raise Exception("Failed to build recipes")
-
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <tag>")
-        sys.exit(1)
-    tag = sys.argv[1]
+    
+    convert_wheels_to_tar_gz()
     
     make_bundle(tag)
     upload_to_r2(tag)
