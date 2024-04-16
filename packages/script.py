@@ -102,12 +102,12 @@ def convert_wheels_to_tar_gz(dist = Path("dist")):
         new_file = file.with_suffix(".tar.gz")
         print("Converting zip file " + str(file) + " to .tar.gz format")
         with zipfile.ZipFile(file, "r") as zip:
-            with tarfile.open(new_file, "w:gz") as tar:
-                for member in zip.infolist():
-                    if member.is_dir(): continue
-                    tarinfo = tarfile.TarInfo(member.filename)
-                    tarinfo.size = member.file_size
-                    tar.addfile(tarinfo, zip.open(member, "r"))
+            with tempfile.TemporaryDirectory() as t:
+                tempdir = Path(t)
+                zip.extractall(tempdir)
+                # create tar.gz file from tempdir
+                with tarfile.open(new_file, "w:gz") as tar:
+                    tar.add(tempdir, arcname="./")
         os.remove(file)
         package["file_name"] = new_file.name
         # update sha256 hash
