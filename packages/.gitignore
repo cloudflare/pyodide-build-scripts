@@ -1,0 +1,6 @@
+.venv
+.pyodide-xbuildenv-0.26.0a3
+dist
+emsdk
+packages
+pyodide
