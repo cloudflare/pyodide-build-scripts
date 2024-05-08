@@ -22,5 +22,5 @@ def gen(packages: List[str], packages_dir = Path("packages")):
                 if len(imports) > 0:
                     res[package] = list(imports)
         except FileNotFoundError:
-            pass
+            print(f"package {package}'s meta.yaml not found")
     return res

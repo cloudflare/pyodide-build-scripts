@@ -31,7 +31,7 @@ def gen_bzl_config(tag, dist):
 
     with open(dist / "pyodide-lock.json", "r") as file:
         lock = json.load(file)
-        packages = lock["packages"].keys()
+        packages = [package["name"] for package in lock["packages"].values()]
         imports_to_test = import_tests.gen(packages)
 
     with open("pyodide_bucket.bzl", "w") as f:
