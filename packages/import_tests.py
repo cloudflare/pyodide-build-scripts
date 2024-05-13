@@ -21,7 +21,7 @@ def gen(packages: List[str], packages_dir = Path("packages")):
                         imports.update(meta["test"]["imports"])
                 
                 if len(imports) > 0:
-                    res[package] = list(imports)
+                    res[package] = sorted(list(imports))
         except FileNotFoundError:
             print(f"package {package}'s meta.yaml not found")
     return res
