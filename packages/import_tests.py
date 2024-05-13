@@ -6,6 +6,7 @@ import yaml
 def gen(packages: List[str], packages_dir = Path("packages")):
     res = {}
     for package in packages:
+        if package == "test": continue
         try:
             with open(packages_dir / package / "meta.yaml", "r") as file:
                 imports = set()
