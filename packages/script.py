@@ -20,7 +20,7 @@ def normalize(name):
 # prerequisite: emsdk, pyodide, packages -> pyodide/packages
 
 def gen_bzl_config(tag, dist):
-    bucket_url = "https://pyodide.runtime-playground.workers.dev/python-package-bucket/" + tag + "/"
+    bucket_url = "https://pyodide.edgeworker.net/python-package-bucket/" + tag + "/"
     github_url = "https://github.com/cloudflare/pyodide-build-scripts/releases/download/" + tag + "/"
     lock_bytes = (dist / "pyodide-lock.json").read_bytes()
     lock_hash = hashlib.sha256(lock_bytes).hexdigest()
