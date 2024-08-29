@@ -93,15 +93,18 @@ def upload_to_r2(tag, dist = Path("dist")):
     
     files_remaining = []
     
-    # upload entire dist directory to r2
+    # upload entire dist directory to r2, excluding all_wheels.zip and pyodide_packages.tar.zip
     for root, dirs, files in os.walk(dist):
         for file in files:
+            if file in {"all_wheels.zip", "pyodide_packages.tar.zip"}:
+                continue
             path = Path(root) / file
             key = tag + "/" + str(path.relative_to(dist))
             files_remaining.append((path, key))
     
     # attempt to upload each file 5 times. If after 5 attempts the file is still not accessible at pyodide.edgeworker.net then give up
-    for i in range(5):
+    ATTEMPTS = 5
+    for i in range(ATTEMPTS):
         for (path, key) in files_remaining:
             print(f"uploading {path} to {key}")
             s3.upload_file(str(path), "python-package-bucket", key)
@@ -134,13 +137,14 @@ def upload_to_r2(tag, dist = Path("dist")):
                 print(f"Failed to verify {path}: {e}. Retrying...")
                 new_files_remaining.append((path, key))
 
-        if not new_files_remaining:
+        files_remaining = new_files_remaining
+
+        if not files_remaining:
             break
 
-        for (path, key) in new_files_remaining:
-            s3.delete_object(Bucket="python-package-bucket", Key=key)
-
-        files_remaining = new_files_remaining
+        if i != ATTEMPTS - 1:
+            for (path, key) in files_remaining:
+                s3.delete_object(Bucket="python-package-bucket", Key=key)
 
     if files_remaining:
         raise Exception("Failed to upload packages after 5 attempts: ", files_remaining)
