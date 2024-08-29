@@ -9,6 +9,8 @@ import boto3
 import re
 import sys
 import hashlib
+import time
+import requests
 from datetime import datetime
 
 import import_tests
@@ -89,13 +91,59 @@ def upload_to_r2(tag, dist = Path("dist")):
                       aws_secret_access_key = os.environ.get("R2_SECRET_ACCESS_KEY"),
                       region_name="auto")
     
+    files_remaining = []
+    
     # upload entire dist directory to r2
     for root, dirs, files in os.walk(dist):
         for file in files:
             path = Path(root) / file
             key = tag + "/" + str(path.relative_to(dist))
+            files_remaining.append((path, key))
+    
+    # attempt to upload each file 5 times. If after 5 attempts the file is still not accessible at pyodide.edgeworker.net then give up
+    for i in range(5):
+        for (path, key) in files_remaining:
             print(f"uploading {path} to {key}")
             s3.upload_file(str(path), "python-package-bucket", key)
+
+        new_files_remaining = []
+
+        time.sleep(10)
+
+        for (path, key) in files_remaining:
+            # Construct URL to fetch the uploaded file
+            url = f"https://pyodide.edgeworker.net/python-package-bucket/{key}"
+            print(f"Checking {url}")
+            
+            try:
+                # Download the file content from the URL
+                response = requests.get(url)
+                response.raise_for_status()  # Raise an exception if the status is not 200 OK
+                
+                # Read the local file content
+                with open(path, 'rb') as f:
+                    local_content = f.read()
+
+                # Compare contents
+                if local_content == response.content:
+                    print(f"{path} uploaded successfully.")
+                else:
+                    print(f"Content mismatch for {path}. Retrying...")
+                    new_files_remaining.append((path, key))
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to verify {path}: {e}. Retrying...")
+                new_files_remaining.append((path, key))
+
+        if not new_files_remaining:
+            break
+
+        for (path, key) in new_files_remaining:
+            s3.delete_object(Bucket="python-package-bucket", Key=key)
+
+        files_remaining = new_files_remaining
+
+    if files_remaining:
+        raise Exception("Failed to upload packages after 5 attempts: ", files_remaining)
 
 # converts all the .zip wheels into .tar.gz format (destructively)
 def convert_wheels_to_tar_gz(dist = Path("dist")):
