@@ -9,6 +9,8 @@ import boto3
 import re
 import sys
 import hashlib
+import time
+import requests
 from datetime import datetime
 
 import import_tests
@@ -20,7 +22,7 @@ def normalize(name):
 # prerequisite: emsdk, pyodide, packages -> pyodide/packages
 
 def gen_bzl_config(tag, dist):
-    bucket_url = "https://pub-45d734c4145d4285b343833ee450ef38.r2.dev/" + tag + "/"
+    bucket_url = "https://pyodide.edgeworker.net/python-package-bucket/" + tag + "/"
     github_url = "https://github.com/cloudflare/pyodide-build-scripts/releases/download/" + tag + "/"
     lock_bytes = (dist / "pyodide-lock.json").read_bytes()
     lock_hash = hashlib.sha256(lock_bytes).hexdigest()
@@ -89,13 +91,63 @@ def upload_to_r2(tag, dist = Path("dist")):
                       aws_secret_access_key = os.environ.get("R2_SECRET_ACCESS_KEY"),
                       region_name="auto")
     
-    # upload entire dist directory to r2
+    files_remaining = []
+    
+    # upload entire dist directory to r2, excluding all_wheels.zip and pyodide_packages.tar.zip
     for root, dirs, files in os.walk(dist):
         for file in files:
+            if file in {"all_wheels.zip", "pyodide_packages.tar.zip"}:
+                continue
             path = Path(root) / file
             key = tag + "/" + str(path.relative_to(dist))
+            files_remaining.append((path, key))
+    
+    # attempt to upload each file 5 times. If after 5 attempts the file is still not accessible at pyodide.edgeworker.net then give up
+    ATTEMPTS = 5
+    for i in range(ATTEMPTS):
+        for (path, key) in files_remaining:
             print(f"uploading {path} to {key}")
             s3.upload_file(str(path), "python-package-bucket", key)
+
+        new_files_remaining = []
+
+        time.sleep(10)
+
+        for (path, key) in files_remaining:
+            # Construct URL to fetch the uploaded file
+            url = f"https://pyodide.edgeworker.net/python-package-bucket/{key}"
+            print(f"Checking {url}")
+            
+            try:
+                # Download the file content from the URL
+                response = requests.get(url)
+                response.raise_for_status()  # Raise an exception if the status is not 200 OK
+                
+                # Read the local file content
+                with open(path, 'rb') as f:
+                    local_content = f.read()
+
+                # Compare contents
+                if local_content == response.content:
+                    print(f"{path} uploaded successfully.")
+                else:
+                    print(f"Content mismatch for {path}. Retrying...")
+                    new_files_remaining.append((path, key))
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to verify {path}: {e}. Retrying...")
+                new_files_remaining.append((path, key))
+
+        files_remaining = new_files_remaining
+
+        if not files_remaining:
+            break
+
+        if i != ATTEMPTS - 1:
+            for (path, key) in files_remaining:
+                s3.delete_object(Bucket="python-package-bucket", Key=key)
+
+    if files_remaining:
+        raise Exception("Failed to upload packages after 5 attempts: ", files_remaining)
 
 # converts all the .zip wheels into .tar.gz format (destructively)
 def convert_wheels_to_tar_gz(dist = Path("dist")):
