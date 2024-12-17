@@ -1,6 +1,8 @@
+aiohttp
+beautifulsoup4
+fastapi
 langchain_openai
 langchain
-fastapi
-aiohttp
 requests
 sqlalchemy
+!test
