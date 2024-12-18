@@ -1,4 +1,11 @@
+aiohttp
+beautifulsoup4
+cryptography
+fastapi
 langchain_openai
 langchain
-fastapi
-aiohttp
+PyJWT
+python-multipart
+requests
+sqlalchemy
+!test
