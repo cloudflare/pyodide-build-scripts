@@ -1,8 +1,11 @@
 aiohttp
 beautifulsoup4
+cryptography
 fastapi
 langchain_openai
 langchain
+PyJWT
+python-multipart
 requests
 sqlalchemy
 !test
