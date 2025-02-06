@@ -23,6 +23,6 @@ sudo apt install gfortran sqlite3 f2c swig libreadline-dev
 
 python3.12 -m venv .venv
 source .venv/bin/activate
-pip install build==1.0.0 pyodide-build==$PYODIDE_VERSION
+pip install pyodide-build
 
-pip install boto3 cython
+pip install boto3 cython requests
