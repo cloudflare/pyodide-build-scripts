@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from pyodide_build.io import MetaConfig
-
+from pyodide_build.recipe.spec import MetaConfig
 
 def gen(packages: list[str], packages_dir: Path = Path("packages")) -> dict[str, list[str]]:
     res = {}
