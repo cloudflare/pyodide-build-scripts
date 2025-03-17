@@ -26,3 +26,12 @@ source .venv/bin/activate
 pip install pyodide-build
 
 pip install boto3 cython requests
+
+pyodide xbuildenv install $PYODIDE_TAG
+pyodide xbuildenv use $PYODIDE_TAG
+
+# Workaround for https://github.com/pyodide/pyodide-build/issues/140
+PYODIDE_BUILD_VERSION=$(python -c 'from importlib.metadata import version; print(version("pyodide-build"))')
+NUMPY_CORE=.pyodide-xbuildenv-$PYODIDE_BUILD_VERSION/$PYODIDE_TAG/xbuildenv/pyodide-root/packages/.artifacts/lib/python3.12/site-packages/numpy/core/
+mkdir -p $NUMPY_CORE/include/numpy
+mkdir -p $NUMPY_CORE/lib/numpy
