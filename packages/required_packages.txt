@@ -10,4 +10,5 @@ requests
 sqlalchemy
 !test
 h11
+httpcore
 
