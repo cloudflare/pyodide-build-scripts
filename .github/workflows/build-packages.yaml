@@ -13,11 +13,7 @@ on:
       pyodide_tag:
         description: Branch or tag of cloudflare/pyodide to get recipes from
         required: true
-        default: "main"
-      pyodide_version:
-        description: Version of pyodide-build to use
-        required: true
-        default: "0.29.2"
+        default: "cloudflare-main"
 
 jobs:
   pyodide-packages:
