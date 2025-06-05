@@ -48,7 +48,7 @@ def gen_bzl_config(tag: str, dist: Path) -> None:
     packages_lock_name = "packages_" + tag.replace(".", "_")
     packages_lock_name_upper = packages_lock_name.upper()
     info = {"tag": tag, "lockfile_hash": lock_hash, "all_wheels_hash": all_wheels_hash}
-    json_contents = {"info": info, "packages": imports_to_test}
+    json_contents = {"info": info, "import_tests": imports_to_test}
     packages_lock_json = indent(json.dumps(json_contents, indent=3, sort_keys=True), " "*12).strip()
     Path(dist / (packages_lock_name + ".bzl")).write_text(
         dedent(
