@@ -8,8 +8,8 @@ source ./emsdk_env.sh
 cd ..
 
 git clone https://github.com/pyodide/pyodide-recipes.git
-(cd pyodide && git checkout $PYODIDE_TAG)
-ln -s pyodide/packages packages
+(cd pyodide-recipes && git checkout $PYODIDE_TAG)
+ln -s pyodide-recipes/packages packages
 
 # rust is required for building some wheels
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
