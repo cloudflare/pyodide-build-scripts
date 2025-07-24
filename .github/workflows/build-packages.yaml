@@ -9,7 +9,7 @@ on:
       emsdk_version:
         description: Version of emsdk to use
         required: true
-        default: "3.1.58"
+        default: "4.0.9"
       pyodide_tag:
         description: Branch or tag of pyodide/pyodide-recipes to get recipes from
         required: true
