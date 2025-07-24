@@ -19,9 +19,7 @@ sudo apt install -y pkg-config
 
 sudo apt install gfortran sqlite3 f2c swig libreadline-dev
 
-#todo: setup python3.12
-
-python3.12 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install pyodide-build
 
