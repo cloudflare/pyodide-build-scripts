@@ -7,7 +7,7 @@ cd emsdk
 source ./emsdk_env.sh
 cd ..
 
-git clone https://github.com/cloudflare/pyodide.git
+git clone https://github.com/pyodide/pyodide-recipes.git
 (cd pyodide && git checkout $PYODIDE_TAG)
 ln -s pyodide/packages packages
 
