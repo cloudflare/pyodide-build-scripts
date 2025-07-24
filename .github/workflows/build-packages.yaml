@@ -6,10 +6,6 @@ on:
         description: Version Tag (Usually YYYYMMDD)
         required: true
         default: ""
-      emsdk_version:
-        description: Version of emsdk to use
-        required: true
-        default: "4.0.9"
       pyodide_tag:
         description: Branch or tag of pyodide/pyodide-recipes to get recipes from
         required: true
@@ -31,7 +27,6 @@ jobs:
 
       - name: Install dependencies
         env:
-          EMSDK_VERSION: ${{ inputs.emsdk_version }}
           PYODIDE_VERSION: ${{ inputs.pyodide_version }}
           PYODIDE_TAG: ${{ inputs.pyodide_tag }}
         run: |
