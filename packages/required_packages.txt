@@ -6,4 +6,4 @@ sqlalchemy
 !test
 h11
 httpcore
-
+numpy
