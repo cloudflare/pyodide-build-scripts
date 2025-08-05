@@ -7,3 +7,5 @@ sqlalchemy
 h11
 httpcore
 numpy
+fastapi
+httpx
