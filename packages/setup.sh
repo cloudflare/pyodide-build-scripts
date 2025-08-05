@@ -1,7 +1,6 @@
 #!/bin/bash
 
-git clone https://github.com/pyodide/pyodide-recipes.git
-(cd pyodide-recipes && git checkout $PYODIDE_TAG)
+git clone https://github.com/hoodmane/pyodide-recipes.git -b fastapi --depth 1
 
 ln -s pyodide-recipes/packages packages
 
