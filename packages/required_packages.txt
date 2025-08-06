@@ -9,3 +9,4 @@ httpcore
 numpy
 fastapi
 httpx
+openai
