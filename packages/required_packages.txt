@@ -10,3 +10,6 @@ numpy
 fastapi
 httpx
 openai
+langchain
+langchain-community
+langchain_openai
