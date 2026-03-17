@@ -1,0 +1,33 @@
+name: Copy R2 bucket contents
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (list objects without copying)"
+        type: boolean
+        default: true
+
+jobs:
+  copy:
+    name: Copy python-package-bucket → pyodide-capnp-bin/python-package-bucket
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install boto3
+      
+      - run: >
+          python packages/copy_r2_bucket.py
+          --src python-package-bucket
+          --dest pyodide-capnp-bin
+          --prefix python-package-bucket
+          ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
