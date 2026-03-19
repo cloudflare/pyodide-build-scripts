@@ -1,4 +1,6 @@
 name: Copy R2 bucket contents
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
@@ -7,7 +9,6 @@ on:
         description: "Dry run (list objects without copying)"
         type: boolean
         default: true
-
 jobs:
   copy:
     name: Copy python-package-bucket → pyodide-capnp-bin/python-package-bucket
