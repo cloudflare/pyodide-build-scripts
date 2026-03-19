@@ -131,7 +131,7 @@ def upload_to_r2(tag: str, dist=Path("dist")) -> None:
     for i in range(ATTEMPTS):
         for path, key in files_remaining:
             print(f"uploading {path} to {key}")
-            s3.upload_file(str(path), "python-package-bucket", key)
+            s3.upload_file(str(path), "pyodide-capnp-bin", f"python-package-bucket/{key}")
 
         new_files_remaining = []
 
@@ -139,7 +139,7 @@ def upload_to_r2(tag: str, dist=Path("dist")) -> None:
 
         for path, key in files_remaining:
             # Construct URL to fetch the uploaded file
-            url = f"https://pyodide.edgeworker.net/python-package-bucket/{key}"
+            url = f"https://pyodide-capnp-bin.edgeworker.net/python-package-bucket/{key}"
             print(f"Checking {url}")
 
             try:
