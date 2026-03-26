@@ -5,13 +5,41 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "Copy mode"
+        type: choice
+        options:
+          - same-account
+          - cross-account
+        default: same-account
+      src_bucket:
+        description: "Source bucket name"
+        required: true
+        default: python-package-bucket
+      dest_bucket:
+        description: "Destination bucket name"
+        required: true
+        default: pyodide-capnp-bin
+      prefix:
+        description: "Destination key prefix (subdirectory)"
+        required: true
+        default: python-package-bucket
+      src_prefix:
+        description: "Only copy objects matching this source key prefix (leave empty for all)"
+        required: false
+        default: ""
+      start_after:
+        description: "Resume after this key (leave empty to start from beginning)"
+        required: false
+        default: ""
       dry_run:
         description: "Dry run (list objects without copying)"
         type: boolean
         default: true
+
 jobs:
   copy:
-    name: Copy python-package-bucket → pyodide-capnp-bin/python-package-bucket
+    name: "Copy ${{ inputs.src_bucket }} → ${{ inputs.dest_bucket }}/${{ inputs.prefix }} (${{ inputs.mode }})"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,14 +49,21 @@ jobs:
           python-version: "3.12"
 
       - run: pip install boto3
-      
+
       - run: >
           python packages/copy_r2_bucket.py
-          --src python-package-bucket
-          --dest pyodide-capnp-bin
-          --prefix python-package-bucket
+          --src '${{ inputs.src_bucket }}'
+          --dest '${{ inputs.dest_bucket }}'
+          --prefix '${{ inputs.prefix }}'
+          ${{ inputs.src_prefix && format('--src-prefix ''{0}''', inputs.src_prefix) || '' }}
+          ${{ inputs.start_after && format('--start-after ''{0}''', inputs.start_after) || '' }}
           ${{ inputs.dry_run && '--dry-run' || '' }}
         env:
+          # Destination account credentials (always required)
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          # Source account credentials (only used in cross-account mode)
+          R2_SRC_ACCOUNT_ID: ${{ inputs.mode == 'cross-account' && secrets.R2_SRC_ACCOUNT_ID || '' }}
+          R2_SRC_ACCESS_KEY_ID: ${{ inputs.mode == 'cross-account' && secrets.R2_SRC_ACCESS_KEY_ID || '' }}
+          R2_SRC_SECRET_ACCESS_KEY: ${{ inputs.mode == 'cross-account' && secrets.R2_SRC_SECRET_ACCESS_KEY || '' }}
